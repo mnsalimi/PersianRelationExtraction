@@ -12,11 +12,15 @@ def main(args):
     tokenizer = load_tokenizer(args)
 
     train_dataset = load_and_cache_examples(args, tokenizer, mode="train")
+    dev_dataset = load_and_cache_examples(args, tokenizer, mode="dev")
     test_dataset = load_and_cache_examples(args, tokenizer, mode="test")
     # print(type(test_dataset))
     # print(len(test_dataset))
     # print(test_dataset[:10])
-    trainer = Trainer(args, train_dataset=train_dataset, test_dataset=test_dataset)
+    trainer = Trainer(
+        args, train_dataset=train_dataset, dev_dataset=dev_dataset,
+        test_dataset=test_dataset
+    )
 
     if args.do_train:
         trainer.train()
@@ -32,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument("--task", default="semeval", type=str, help="The name of the task to train")
     parser.add_argument(
         "--data_dir",
-        default="./data/persian",
+        default="./data/persian/swapped_tags_splitted_70_15_15",
         # default="./data/english",
         type=str,
         help="The input data dir. Should contain the .tsv files (or other data files) for the task.",
@@ -44,8 +48,9 @@ if __name__ == "__main__":
         type=str,
         help="Evaluation script, result directory",
     )
-    parser.add_argument("--train_file", default="train_swapped_removed_queries_with_duplicated_tags.tsv", type=str, help="Train file")
-    parser.add_argument("--test_file", default="test_swapped_removed_queries_with_duplicated_tags.tsv", type=str, help="Test file")
+    parser.add_argument("--train_file", default="train.tsv", type=str, help="Train file")
+    parser.add_argument("--dev_file", default="dev.tsv", type=str, help="dev file")
+    parser.add_argument("--test_file", default="test.tsv", type=str, help="Test file")
     parser.add_argument("--label_file", default="label.txt", type=str, help="Label file")
 
     parser.add_argument(
@@ -58,7 +63,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--seed", type=int, default=77, help="random seed for initialization")
-    parser.add_argument("--train_batch_size", default=11, type=int, help="Batch size for training.")
+    parser.add_argument("--train_batch_size", default=16, type=int, help="Batch size for training.")
     parser.add_argument("--eval_batch_size", default=32, type=int, help="Batch size for evaluation.")
     parser.add_argument(
         "--max_seq_len",
@@ -74,7 +79,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--num_train_epochs",
-        default=10,
+        default=5,
         type=float,
         help="Total number of training epochs to perform.",
     )

@@ -132,7 +132,7 @@ class Trainer(object):
                     global_step += 1
 
                     if self.args.logging_steps > 0 and global_step % self.args.logging_steps == 0:
-                        measures.append(self.evaluate("test"))  # There is no dev set for semeval task
+                        measures.append(self.evaluate("dev"))  # There is no dev set for semeval task
 
                     if self.args.save_steps > 0 and global_step % self.args.save_steps == 0:
                         self.save_model()
