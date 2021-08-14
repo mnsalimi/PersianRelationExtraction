@@ -58,18 +58,18 @@ def set_seed(args):
         torch.cuda.manual_seed_all(args.seed)
 
 
-def compute_metrics(preds, labels):
+def compute_metrics(args, mode, preds, labels):
     assert len(preds) == len(labels)
-    return acc_and_f1(preds, labels)
+    return acc_and_f1(args, mode, preds, labels)
 
 
 def simple_accuracy(preds, labels):
     return (preds == labels).mean()
 
 
-def acc_and_f1(preds, labels, average="macro"):
+def acc_and_f1(args, mode, preds, labels, average="macro"):
     acc = simple_accuracy(preds, labels)
     return {
         "acc": acc,
-        "f1": official_f1(),
+        "f1": official_f1(args, mode),
     }

@@ -146,16 +146,42 @@ class Trainer(object):
                 break
         x = [i+1 for i in range(len(measures))]
         # print(x)
-        y_loss = [re["loss"] for re in measures]
-        y_f1 = [re["f1"] for re in measures]
+        y_loss = [round(re["loss"],3) for re in measures]
+        y_f1 = [round(re["f1"],3) for re in measures]
         # print(y)
         plt.plot(x, y_loss)
         plt.plot(x, y_f1)
-        plt.xlabel('x - training per batch')
+        plt.xlabel('x - per batch')
         plt.ylabel('y - loss/f1')
-        plt.title('Loss/F1 Graph')
+        for a,b in zip(x, y_loss): 
+            plt.text(a, b, str(b))
+        for a,b in zip(x, y_f1): 
+            plt.text(a, b, str(b))
+        plt.title(
+            '{0} '.format(os.path.split(self.args.data_dir)[-1]) +\
+            'btchSize: {0}'.format(self.args.train_batch_size) + " " +\
+            'drpRate: {0}'.format(self.args.dropout_rate) + "\n" +\
+            'lr: {0}'.format(self.args.learning_rate) + " " +\
+            'maxSeqLen: {0}'.format(self.args.max_seq_len) + " " +\
+            'epochNum: {0}'.format(self.args.num_train_epochs) + " " +\
+            'weightDecay: {0}'.format(self.args.weight_decay)
+        
+        )
         plt.legend(['y = loss', 'y = f1'], loc='upper right')
-        plt.savefig('loss_f1 graph.png')
+        # print(self.args.data_dir)
+        # print()
+        # plt.savefig('{0}.png'.format(os.path.split(self.args.data_dir)[-1]), mode)
+        plt.savefig(
+            '{0}_btchSize_{1}_epochSize_{2}_drpRate_{3}_lr_{4}_maxSeqLn_{5}_.png'.format(
+                os.path.split(self.args.data_dir)[-1],
+                self.args.train_batch_size,
+                self.args.num_train_epochs,
+                self.args.dropout_rate,
+                self.args.learning_rate,
+                self.args.max_seq_len,
+
+            )
+        )
 
         return global_step, tr_loss / global_step
 
@@ -211,9 +237,11 @@ class Trainer(object):
         results = {"loss": eval_loss}
         preds = np.argmax(preds, axis=1)
 
-        write_prediction(len(self.train_dataset)+1, self.args, os.path.join(self.args.eval_dir, "proposed_answers.txt"), preds)
-
-        result = compute_metrics(preds, out_label_ids)
+        write_prediction(len(self.train_dataset)+1, self.args, os.path.join(self.args.eval_dir, "proposed_answers_{}.txt".format(mode)), preds)
+        # print(self.args.eval_dir)
+        # print(self.args.eval_dir)
+        # print(self.args.eval_dir)
+        result = compute_metrics(self.args, mode, preds, out_label_ids)
         results.update(result)
 
         logger.info("***** Eval results *****")

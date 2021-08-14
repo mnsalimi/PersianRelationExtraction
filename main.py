@@ -1,3 +1,4 @@
+import os
 import argparse
 
 from data_loader import load_and_cache_examples
@@ -17,6 +18,11 @@ def main(args):
     # print(type(test_dataset))
     # print(len(test_dataset))
     # print(test_dataset[:10])
+    args.eval_dir += "/" + os.path.split(args.data_dir)[-1]
+    # print(args.eval_dir)
+    # print(args.eval_dir)
+    # print(args.eval_dir)
+    # print(args.eval_dir)
     trainer = Trainer(
         args, train_dataset=train_dataset, dev_dataset=dev_dataset,
         test_dataset=test_dataset
@@ -36,15 +42,14 @@ if __name__ == "__main__":
     parser.add_argument("--task", default="semeval", type=str, help="The name of the task to train")
     parser.add_argument(
         "--data_dir",
-        default="./data/persian/swapped_tags_splitted_70_15_15",
-        # default="./data/english",
+        default="./data/persian/swapped_queries_70_15_15",
         type=str,
         help="The input data dir. Should contain the .tsv files (or other data files) for the task.",
     )
     parser.add_argument("--model_dir", default="./model", type=str, help="Path to model")
     parser.add_argument(
         "--eval_dir",
-        default="./eval",
+        default="./eval/",
         type=str,
         help="Evaluation script, result directory",
     )
@@ -67,23 +72,27 @@ if __name__ == "__main__":
     parser.add_argument("--eval_batch_size", default=32, type=int, help="Batch size for evaluation.")
     parser.add_argument(
         "--max_seq_len",
-        default=135,
+        default=128,
         type=int,
         help="The maximum total input sequence length after tokenization.",
     )
     parser.add_argument(
         "--learning_rate",
-        default=2e-5,
+        default=9e-6,
         type=float,
         help="The initial learning rate for Adam.",
     )
     parser.add_argument(
         "--num_train_epochs",
-        default=5,
+        default=7,
         type=float,
         help="Total number of training epochs to perform.",
     )
-    parser.add_argument("--weight_decay", default=0.0, type=float, help="Weight decay if we apply some.")
+    parser.add_argument("--weight_decay",
+    default=0,
+    type=float,
+    help="Weight decay if we apply some."
+    )
     parser.add_argument(
         "--gradient_accumulation_steps",
         type=int,
