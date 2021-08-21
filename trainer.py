@@ -92,10 +92,6 @@ class Trainer(object):
         self.model.zero_grad()
 
         train_iterator = int(self.args.num_train_epochs)
-        # print(len(self.train_dataset))
-        # print(len(self.train_dataset))
-        # print(len(self.train_dataset))
-        # print(len(self.train_dataset))
         measures = []
         for indx in range(train_iterator):
             logger.info("Training at Epoch " + str(indx+1) + ": ")
@@ -140,15 +136,12 @@ class Trainer(object):
                 if 0 < self.args.max_steps < global_step:
                     epoch_iterator.close()
                     break
-            # print(measures)
             if 0 < self.args.max_steps < global_step:
                 train_iterator.close()
                 break
         x = [i+1 for i in range(len(measures))]
-        # print(x)
         y_loss = [round(re["loss"],3) for re in measures]
         y_f1 = [round(re["f1"],3) for re in measures]
-        # print(y)
         plt.plot(x, y_loss)
         plt.plot(x, y_f1)
         plt.xlabel('x - per batch')
@@ -168,8 +161,6 @@ class Trainer(object):
         
         )
         plt.legend(['y = loss', 'y = f1'], loc='upper right')
-        # print(self.args.data_dir)
-        # print()
         # plt.savefig('{0}.png'.format(os.path.split(self.args.data_dir)[-1]), mode)
         plt.savefig(
             '{0}_btchSize_{1}_epochSize_{2}_drpRate_{3}_lr_{4}_maxSeqLn_{5}_.png'.format(
@@ -238,9 +229,6 @@ class Trainer(object):
         preds = np.argmax(preds, axis=1)
 
         write_prediction(len(self.train_dataset)+1, self.args, os.path.join(self.args.eval_dir, "proposed_answers_{}.txt".format(mode)), preds)
-        # print(self.args.eval_dir)
-        # print(self.args.eval_dir)
-        # print(self.args.eval_dir)
         result = compute_metrics(self.args, mode, preds, out_label_ids)
         results.update(result)
 

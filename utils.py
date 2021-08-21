@@ -36,6 +36,7 @@ def write_prediction(training_dataset_length, args, output_file, preds):
     :param output_file: prediction_file_path (e.g. eval/proposed_answers.txt)
     :param preds: [0,1,0,2,18,...]
     """
+    # print(output_file)
     relation_labels = get_label(args)
     with open(output_file, "w", encoding="utf-8") as f:
         for idx, pred in enumerate(preds):

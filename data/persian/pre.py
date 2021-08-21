@@ -2,7 +2,7 @@ import re
 import numpy as np
 import pandas as pd
 
-file_type = "train"
+file_type = "dataset"
 file_txt = file_type + ".txt" 
 file_tsv = file_type + ".tsv" 
 train_size = 0.70
@@ -119,6 +119,6 @@ with open("answer_test.txt", "w", encoding="utf-8") as f:
 
 i = 1
 with open("answer_dev.txt", "w", encoding="utf-8") as f:
-    for index, row in test.iterrows():
+    for index, row in validate.iterrows():
         f.write(str(len(train)+i) + "\t" + row['relation'] + "\n")
         i += 1

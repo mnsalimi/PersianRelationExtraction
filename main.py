@@ -15,14 +15,7 @@ def main(args):
     train_dataset = load_and_cache_examples(args, tokenizer, mode="train")
     dev_dataset = load_and_cache_examples(args, tokenizer, mode="dev")
     test_dataset = load_and_cache_examples(args, tokenizer, mode="test")
-    # print(type(test_dataset))
-    # print(len(test_dataset))
-    # print(test_dataset[:10])
     args.eval_dir += "/" + os.path.split(args.data_dir)[-1]
-    # print(args.eval_dir)
-    # print(args.eval_dir)
-    # print(args.eval_dir)
-    # print(args.eval_dir)
     trainer = Trainer(
         args, train_dataset=train_dataset, dev_dataset=dev_dataset,
         test_dataset=test_dataset
@@ -68,8 +61,8 @@ if __name__ == "__main__":
     )
 
     parser.add_argument("--seed", type=int, default=77, help="random seed for initialization")
-    parser.add_argument("--train_batch_size", default=2, type=int, help="Batch size for training.")
-    parser.add_argument("--eval_batch_size", default=16, type=int, help="Batch size for evaluation.")
+    parser.add_argument("--train_batch_size", default=11, type=int, help="Batch size for training.")
+    parser.add_argument("--eval_batch_size", default=32, type=int, help="Batch size for evaluation.")
     parser.add_argument(
         "--max_seq_len",
         default=128,
