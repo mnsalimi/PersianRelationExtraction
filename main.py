@@ -14,11 +14,11 @@ def main(args):
 
     train_dataset = load_and_cache_examples(args, tokenizer, mode="train")
     dev_dataset = load_and_cache_examples(args, tokenizer, mode="dev")
-    test_dataset = load_and_cache_examples(args, tokenizer, mode="test")
+    # test_dataset = load_and_cache_examples(args, tokenizer, mode="test")
     args.eval_dir += "/" + os.path.split(args.data_dir)[-1]
     trainer = Trainer(
         args, train_dataset=train_dataset, dev_dataset=dev_dataset,
-        test_dataset=test_dataset
+        # test_dataset=test_dataset
     )
 
     if args.do_train:
@@ -35,7 +35,8 @@ if __name__ == "__main__":
     parser.add_argument("--task", default="semeval", type=str, help="The name of the task to train")
     parser.add_argument(
         "--data_dir",
-        default="./data/persian/swapped_queries_0.7_0.15_0.15",
+        # default="./data/persian/swapped_queries_0.7_0.15_0.15",
+        default="./data/persian/final",
         # "swapped_queries_0.7_0.15_0.15_swap"
         type=str,
         help="The input data dir. Should contain the .tsv files (or other data files) for the task.",

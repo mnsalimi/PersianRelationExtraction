@@ -8,15 +8,15 @@ from googletrans import Translator
 translator = Translator()
 
 random.seed(200)
-file_type = "dataset"
-file_txt = file_type + ".txt" 
-file_tsv = file_type + ".tsv" 
-train_size = 0.60
+file_name = "dataset"
+file_txt = file_name + ".txt" 
+file_tsv = file_name + ".tsv" 
+train_size = 0.70
 test_size = 1 - float((1-train_size)/2)
 swapped = True
 queries = False
 
-add_noisy_data = ["del"]
+add_noisy_data = []
 deleted_tokens = 2
 folder_name = "swapped_queries_" + str(train_size) +  "_" +\
     str(round(1-test_size,2)) + "_" + str(round(1-test_size,2))
@@ -358,8 +358,8 @@ for i in range(0, len(results), 1):
                 results[i][1] = replacenth(results[i][1], "<e2>", "", 2)   
                 results[i][1] = replacenth(results[i][1], "</e2>", "", 2)
 
-        if lines[i][1].count("</e1>")>1:
-            count = lines[i][1].count("<e1>")
+        if results[i][1].count("</e1>")>1:
+            count = results[i][1].count("<e1>")
             for j in range(count-1):
                 results[i][1] = replacenth(results[i][1], "<e1>", "", 2)   
                 results[i][1] = replacenth(results[i][1], "</e1>", "", 2)
