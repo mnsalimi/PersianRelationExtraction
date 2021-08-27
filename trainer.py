@@ -140,16 +140,16 @@ class Trainer(object):
                 train_iterator.close()
                 break
         x = [i+1 for i in range(len(measures))]
-        y_loss = [round(re["loss"],3) for re in measures]
-        y_f1 = [round(re["f1"],3) for re in measures]
+        y_loss = [round(re["loss"],2) for re in measures]
+        y_f1 = [round(re["f1"],2) for re in measures]
         plt.plot(x, y_loss)
         plt.plot(x, y_f1)
         plt.xlabel('x - per batch')
         plt.ylabel('y - loss/f1')
         for a,b in zip(x, y_loss): 
-            plt.text(a, b, str(b))
+            plt.text(a, b, str(b), fontsize=6)
         for a,b in zip(x, y_f1): 
-            plt.text(a, b, str(b))
+            plt.text(a, b, str(b), fontsize=6)
         plt.title(
             '{0} '.format(os.path.split(self.args.data_dir)[-1]) +\
             'btchSize: {0}'.format(self.args.train_batch_size) + " " +\
@@ -234,7 +234,7 @@ class Trainer(object):
 
         logger.info("***** Eval results *****")
         for key in sorted(results.keys()):
-            logger.info("  {} = {:.4f}".format(key, results[key]))
+            logger.info("  {} = {:.3f}".format(key, results[key]))
 
         return results
 

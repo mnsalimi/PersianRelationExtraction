@@ -99,8 +99,8 @@ class SemEvalProcessor(object):
             guid = "%s-%s" % (set_type, i)
             text_a = line[1]
             label = self.relation_labels.index(line[0])
-            if i % 3000 == 0:
-                # print(12112)
+            if i in [1, 2, 3, 4, 5, 6] :
+                print(12112)
                 logger.info(line)
             examples.append(InputExample(guid=guid, text_a=text_a, label=label))
         return examples
@@ -153,15 +153,6 @@ def convert_examples_to_features(
         e12_p = tokens_a.index("</e1>")  # the end position of entity1
         e21_p = tokens_a.index("<e2>")  # the start position of entity2
         e22_p = tokens_a.index("</e2>")  # the end position of entity2
-        # print(e11_p)
-        # print(tokens_a[e11_p])
-        # print(e12_p)
-        # print(tokens_a[e12_p])
-
-        # print(e21_p)
-        # print(tokens_a[e21_p])
-        # print(e22_p)
-        # print(tokens_a[e22_p])
         # Replace the token
         tokens_a[e11_p] = "$"
         tokens_a[e12_p] = "$"
