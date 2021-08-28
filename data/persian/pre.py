@@ -19,7 +19,7 @@ test_size = 1 - float((1-train_size)/2)
 swapped = True
 queries = False
 
-add_noisy_data = ["translate"]
+add_noisy_data = []
 deleted_tokens = 2
 folder_name = "swapped_queries_" + str(train_size) +  "_" +\
     str(round(1-test_size,2)) + "_" + str(round(1-test_size,2))
