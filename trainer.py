@@ -228,7 +228,7 @@ class Trainer(object):
         results = {"loss": eval_loss}
         preds = np.argmax(preds, axis=1)
 
-        write_prediction(len(self.train_dataset)+1, self.args, os.path.join(self.args.eval_dir, "proposed_answers_{}.txt".format(mode)), preds)
+        write_prediction(8000+1, self.args, os.path.join(self.args.eval_dir, "proposed_answers_{}.txt".format(mode)), preds)
         result = compute_metrics(self.args, mode, preds, out_label_ids)
         results.update(result)
 

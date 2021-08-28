@@ -1,12 +1,15 @@
 import os
 import re
+import time
 import random
 import numpy as np
 import pandas as pd
 
 from googletrans import Translator
-translator = Translator()
+from concurrent.futures import ProcessPoolExecutor
 
+translator = Translator()
+translate_list = []
 random.seed(200)
 file_name = "dataset"
 file_txt = file_name + ".txt" 
@@ -16,7 +19,7 @@ test_size = 1 - float((1-train_size)/2)
 swapped = True
 queries = False
 
-add_noisy_data = []
+add_noisy_data = ["translate"]
 deleted_tokens = 2
 folder_name = "swapped_queries_" + str(train_size) +  "_" +\
     str(round(1-test_size,2)) + "_" + str(round(1-test_size,2))
@@ -39,99 +42,102 @@ def replacenth(string, sub, wanted, n):
     newString = before + after
     return newString
 
-def back_translate(mylist2):
-    f2 = []
-    for i in range(len(mylist2)):
-        if i%10 == 0:
-            print(i)
-        # i = 22
-        # [print(r) for r in mylist2[i][1].split(" ")]
-        e1b_index = mylist2[i][1].index("<e1>")
-        e2b_index = mylist2[i][1].index("<e2>")
-        if e1b_index < e2b_index:
+def manage_translate_multithreading(mylist12):
+    result = []
+    with ProcessPoolExecutor(max_workers=10) as executor:
+        i = 0
+        for r in executor.map(back_translate, mylist12):
+            if i%100 == 0 and i != 0:
+                print(i)
+            result += r
+            i += 1
+    return result
 
-            old_text = mylist2[i].copy()[1]
-            be1 = re.findall(r"[^\n]*<e1>", mylist2[i][1])[0].replace("<e1>", " ").lstrip().rstrip().strip()
-            e1 = re.findall(r"<e1>[^\n]*</e1>", mylist2[i][1])[0].replace("<e1>", " ").replace("</e1>", " ").lstrip().rstrip().strip()
-            ae1_be2 = re.findall(r"</e1>[^\n]*<e2>", mylist2[i][1])[0].replace("</e1>", " ").replace("<e2>", " ").lstrip().rstrip().strip()
-            e2 = re.findall(r"<e2>[^\n]*</e2>", mylist2[i][1])[0].replace("<e2>", " ").replace("</e2>", " ").lstrip().rstrip().strip()
-            ae2 = re.findall(r"</e2>[^\n]*", mylist2[i][1])[0].replace("</e2>", " ").lstrip().rstrip().strip()
-            persian_texts = [be1, e1, ae1_be2, e2, ae2]
-            english_texts = [] 
-            for item in persian_texts:
-                if item == "":
-                    english_texts.append("")
-                else:
-                    while 1==1:
-                        try:
-                            english_texts.append(do_transalte(item, "en"))
-                            break
-                        except:
-                            pass
-                
-            final_texts = [] 
+def back_translate(row):
+    f2 = []
+    e1b_index = row[1].index("<e1>")
+    e2b_index = row[1].index("<e2>")
+    if e1b_index < e2b_index:
+
+        old_text = row.copy()[1]
+        be1 = re.findall(r"[^\n]*<e1>", row[1])[0].replace("<e1>", " ").lstrip().rstrip().strip()
+        e1 = re.findall(r"<e1>[^\n]*</e1>", row[1])[0].replace("<e1>", " ").replace("</e1>", " ").lstrip().rstrip().strip()
+        ae1_be2 = re.findall(r"</e1>[^\n]*<e2>", row[1])[0].replace("</e1>", " ").replace("<e2>", " ").lstrip().rstrip().strip()
+        e2 = re.findall(r"<e2>[^\n]*</e2>", row[1])[0].replace("<e2>", " ").replace("</e2>", " ").lstrip().rstrip().strip()
+        ae2 = re.findall(r"</e2>[^\n]*", row[1])[0].replace("</e2>", " ").lstrip().rstrip().strip()
+        persian_texts = [be1, e1, ae1_be2, e2, ae2]
+        english_texts = [] 
+        for item in persian_texts:
+            if item == "":
+                english_texts.append("")
+            else:
+                while 1==1:
+                    try:
+                        english_texts.append(do_transalte(item, "en"))
+                        break
+                    except:
+                        pass
             
-            for item in english_texts:
-                if item == "":
-                    final_texts.append("")
-                else:
-                    while 1==1:
-                        try:
-                            final_texts.append(do_transalte(item, "fa"))
-                            break
-                        except:
-                            pass
-            result = final_texts[0] + " <e1> " + final_texts[1] + " </e1> " + final_texts[2] +\
-                " <e2> " + final_texts[3] + " </e2> " + final_texts[4]
-            f2.append(
-                [mylist2[i][0], old_text]
-                )
-            f2.append(
-                [mylist2[i][0], result]
-                )
-            # break
-        elif e2b_index < e1b_index:
-            old_text = mylist2[i].copy()[1]
-            be2 = re.findall(r"[^\n]*<e2>", mylist2[i][1])[0].replace("<e2>", " ").lstrip().rstrip().strip()
-            e2 = re.findall(r"<e2>[^\n]*</e2>", mylist2[i][1])[0].replace("<e2>", " ").replace("</e2>", " ").lstrip().rstrip().strip()
-            ae2_be1 = re.findall(r"</e2>[^\n]*<e1>", mylist2[i][1])[0].replace("</e2>", " ").replace("<e1>", " ").lstrip().rstrip().strip()
-            e1 = re.findall(r"<e1>[^\n]*</e1>", mylist2[i][1])[0].replace("<e1>", " ").replace("</e1>", " ").lstrip().rstrip().strip()
-            ae1 = re.findall(r"</e1>[^\n]*", mylist2[i][1])[0].replace("</e1>", " ").lstrip().rstrip().strip()
-            persian_texts = [be2, e2, ae2_be1, e1, ae1]
-            english_texts = [] 
-            for item in persian_texts:
-                if item == "":
-                    english_texts.append("")
-                else:
-                    while 1==1:
-                        try:
-                            english_texts.append(do_transalte(item, "en"))
-                            break
-                        except:
-                            pass
-                
-            final_texts = [] 
+        final_texts = [] 
+        
+        for item in english_texts:
+            if item == "":
+                final_texts.append("")
+            else:
+                while 1==1:
+                    try:
+                        final_texts.append(do_transalte(item, "fa"))
+                        break
+                    except:
+                        pass
+        result = final_texts[0] + " <e1> " + final_texts[1] + " </e1> " + final_texts[2] +\
+            " <e2> " + final_texts[3] + " </e2> " + final_texts[4]
+        f2.append(
+            [row[0], old_text]
+            )
+        f2.append(
+            [row[0], result]
+            )
+    elif e2b_index < e1b_index:
+        old_text = row.copy()[1]
+        be2 = re.findall(r"[^\n]*<e2>", row[1])[0].replace("<e2>", " ").lstrip().rstrip().strip()
+        e2 = re.findall(r"<e2>[^\n]*</e2>", row[1])[0].replace("<e2>", " ").replace("</e2>", " ").lstrip().rstrip().strip()
+        ae2_be1 = re.findall(r"</e2>[^\n]*<e1>", row[1])[0].replace("</e2>", " ").replace("<e1>", " ").lstrip().rstrip().strip()
+        e1 = re.findall(r"<e1>[^\n]*</e1>", row[1])[0].replace("<e1>", " ").replace("</e1>", " ").lstrip().rstrip().strip()
+        ae1 = re.findall(r"</e1>[^\n]*", row[1])[0].replace("</e1>", " ").lstrip().rstrip().strip()
+        persian_texts = [be2, e2, ae2_be1, e1, ae1]
+        english_texts = [] 
+        for item in persian_texts:
+            if item == "":
+                english_texts.append("")
+            else:
+                while 1==1:
+                    try:
+                        english_texts.append(do_transalte(item, "en"))
+                        break
+                    except:
+                        pass
             
-            for item in english_texts:
-                if item == "":
-                    final_texts.append("")
-                else:
-                    while 1==1:
-                        try:
-                            final_texts.append(do_transalte(item, "fa"))
-                            break
-                        except:
-                            pass
-            result = final_texts[0] + " <e2> " + final_texts[1] + " </e2> " + final_texts[2] +\
-                " <e1> " + final_texts[3] + " </e1> " + final_texts[4]
-            f2.append(
-                [mylist2[i][0], old_text]
-                )
-            f2.append(
-                [mylist2[i][0], result]
-                )
-            # break
-    # print(txt.text)
+        final_texts = [] 
+        
+        for item in english_texts:
+            if item == "":
+                final_texts.append("")
+            else:
+                while 1==1:
+                    try:
+                        final_texts.append(do_transalte(item, "fa"))
+                        break
+                    except:
+                        pass
+        result = final_texts[0] + " <e2> " + final_texts[1] + " </e2> " + final_texts[2] +\
+            " <e1> " + final_texts[3] + " </e1> " + final_texts[4]
+        f2.append(
+            [row[0], old_text]
+            )
+        f2.append(
+            [row[0], result]
+            )
     return f2
 
 def del_token(mylist1, delete_count):
@@ -172,13 +178,9 @@ def del_token(mylist1, delete_count):
             except:
                 continue
         qr_new = qr.copy()
-        # print(nums)
-        # print(len(qr_new))
         qr_new = [qr_new[i] for i in range(len(qr_new)) if i not in nums]
-        # print(len(qr_new))
         ff.append([mylist1[i][0], " ".join(qr)])
         ff.append([mylist1[i][0], " ".join(qr_new)])
-        # print(ff)
         # exit()
     return ff
 
@@ -220,8 +222,6 @@ def del_swap_tokens(mylist3, delete_count):
             except:
                 continue
         qr_new = qr.copy()
-        # print(nums)
-        # print(len(qr_new))
         qr_new = [qr_new[i] for i in range(len(qr_new)) if i not in nums]
         e1b = qr_new.index("<e1>")
         e1e = qr_new.index("</e1>")
@@ -267,10 +267,7 @@ def swap_tokens(mylist):
                 ' '.join(qr_new)
             ]
         )
-        # print(fff)
-        # break
         
-    # print(f_results[:5])
     return fff
 
 with open(file_txt, "r", encoding="utf-8") as f:
@@ -321,16 +318,11 @@ with open(file_txt, "r", encoding="utf-8") as f:
                     lines[i].replace("\n", "").replace("\"", "").split("\t")[1],
                 ]
             )
-    # print(len(results))
-    # print(results[:10])
     f= 0
     if swapped:
         for i in range(len(results)):
             if "دی بانک اوگاندا نشان می دهد که ب" in results[i][1]:
-                # print("yes")
-                # [print(r) for r in results[i][1].split(" ")]
                 f = 1
-            # print(results[i])
             if "<e2></e1>" in results[i][1]:
                 results[i][1] = results[i][1].replace("<e2></e1>", "</e1><e2>")
             if "<e1></e2>" in results[i][1]:
@@ -340,8 +332,6 @@ with open(file_txt, "r", encoding="utf-8") as f:
             results[i][1] = results[i][1].replace("<e2>", " <e2> ")
             results[i][1] = results[i][1].replace("</e2>", " </e2> ")
             if f == 1:
-            #     print(":no")
-            #     [print(r) for r in results[i][1].split(" ")]
                 f = 0
 # exit()
 results_final = []
@@ -377,26 +367,27 @@ if add_noisy_data:
         add_noisy_data or "swap_del" in add_noisy_data:
         train = train.values.tolist()
         if "swap_del" in add_noisy_data:
-            print(1)
+            print("swap_del")
             train = del_swap_tokens(train, deleted_tokens)
         if "swap" in add_noisy_data:
-            print(2)
+            print("swap")
             train = swap_tokens(train)
         if "del" in add_noisy_data:
-            print(3)
+            print("del")
             train = del_token(train, deleted_tokens)
         if "translate" in add_noisy_data:
-            print(4)
-            train = back_translate(train)
+            print("translate")
+            t1 = time.time()
+            train = manage_translate_multithreading(train)
+            # train = back_translate(train[:10])
+            print(time.time()-t1)
+        # print("YESS")
         train = pd.DataFrame(train, columns =['relation', 'sentence'])
         train = train.sample(frac=1).reset_index(drop=True)
 print(len(train))
 print(len(test))
 print(len(validate))
 
-# print(train)
-# print(test)
-# print(validate)
 train.to_csv(os.path.join(folder_name, "train.tsv"), sep="\t", index=False, header=False)
 test.to_csv(os.path.join(folder_name, "test.tsv"), sep="\t", index=False, header=False)
 validate.to_csv(os.path.join(folder_name, "dev.tsv"), sep="\t", index=False, header=False)
@@ -436,3 +427,5 @@ labels = [
 with open(os.path.join(folder_name, "labels.txt"), "w", encoding="utf-8") as f:
     for label in labels:
         f.write(label + "\n")
+
+

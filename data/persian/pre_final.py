@@ -8,11 +8,11 @@ from googletrans import Translator
 translator = Translator()
 
 random.seed(200)
-file_name = "train"
+file_name = "test"
 file_txt = file_name + ".txt" 
 file_tsv = file_name + ".tsv" 
 swapped = True
-queries = True
+queries = False
 
 add_noisy_data = []
 deleted_tokens = 2
